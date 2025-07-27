@@ -1,4 +1,3 @@
-// src/components/NoteForm/NoteForm.tsx
 import { Formik, Form, Field, ErrorMessage as FormikError } from "formik";
 import * as yup from "yup";
 import type { Note } from "../types/note";
@@ -11,6 +10,7 @@ interface NoteFormProps {
     content: string;
     tag: Note["tag"];
   }) => void | Promise<void>;
+  onClose: () => void;
 }
 
 const validationSchema = yup.object({
@@ -26,7 +26,11 @@ const validationSchema = yup.object({
     .required("Tag is required"),
 });
 
-export default function NoteForm({ initial, onSubmit }: NoteFormProps) {
+export default function NoteForm({
+  initial,
+  onSubmit,
+  onClose,
+}: NoteFormProps) {
   const initialValues = {
     title: initial?.title || "",
     content: initial?.content || "",
@@ -84,13 +88,7 @@ export default function NoteForm({ initial, onSubmit }: NoteFormProps) {
             <button
               type="button"
               className={css.cancelButton}
-              onClick={() =>
-                onSubmit({
-                  title: initial?.title || "",
-                  content: initial?.content || "",
-                  tag: initial?.tag || "Todo",
-                })
-              }
+              onClick={onClose}
             >
               Cancel
             </button>

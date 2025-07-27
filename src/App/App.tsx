@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import {
   fetchNotes,
@@ -12,7 +12,7 @@ import Pagination from "../Pagination/Pagination";
 import NoteList from "../NoteList/NoteList";
 import Modal from "../Modal/Modal";
 import NoteForm from "../NoteForm/NoteForm";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import useDebounce from "../hooks/useDebounce";
 import css from "./App.module.css";
 
@@ -21,42 +21,28 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 300);
-  useEffect(() => {
-    setSearch(debouncedSearch);
-    setPage(1);
-  }, [debouncedSearch]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [selected, setSelected] = useState<Note | null>(null);
 
-  const createMutation = useMutation<
-    { title: string; content: string; tag: Note["tag"] }, // argument type
-    unknown, // error type
-    { title: string; content: string; tag: Note["tag"] } // variables type
-  >({
+  const createMutation = useMutation({
     mutationFn: createNote,
     onSuccess: () => qc.invalidateQueries({ queryKey: ["notes"] }),
   });
-  const updateMutation = useMutation<
-    { id: string; title: string; content: string; tag: Note["tag"] }, // argument type
-    unknown, // error type
-    { id: string; title: string; content: string; tag: Note["tag"] } // variables type
-  >({
+
+  const updateMutation = useMutation({
     mutationFn: updateNote,
     onSuccess: () => qc.invalidateQueries({ queryKey: ["notes"] }),
   });
 
-  const { data, isSuccess } = useQuery({
-    queryKey: ["notes", page, search],
-    queryFn: () => fetchNotes(page, 12, search),
+  const { data, isLoading, isError } = useQuery<{
+    data: Note[];
+    totalPages: number;
+  }>({
+    queryKey: ["notes", page, debouncedSearch],
+    queryFn: () => fetchNotes(page, 12, debouncedSearch),
     staleTime: 5000,
-    placeholderData: { data: [], totalPages: 1 },
+    placeholderData: (prev) => prev,
   });
-
-  useEffect(() => {
-    if (isSuccess && data?.data.length === 0) {
-      toast(t("noNotes"));
-    }
-  }, [isSuccess, data]);
 
   const handleSearch = (term: string) => {
     setSearch(term);
@@ -90,7 +76,10 @@ export default function App() {
           <Pagination
             currentPage={page}
             pageCount={data.totalPages}
-            onPageChange={(p) => setPage(p)}
+            onPageChange={(newPage) => {
+              console.log("Pagination clicked:", newPage);
+              setPage(newPage);
+            }}
           />
         )}
         <button
@@ -103,6 +92,9 @@ export default function App() {
           Create note +
         </button>
       </header>
+
+      {isLoading && <p>Loading...</p>}
+      {isError && <p>Error occurred</p>}
 
       {data && data.data.length > 0 && (
         <NoteList
@@ -117,15 +109,13 @@ export default function App() {
 
       {isModalOpen && (
         <Modal onClose={() => setModalOpen(false)}>
-          <NoteForm initial={selected} onSubmit={handleSave} />
+          <NoteForm
+            initial={selected}
+            onSubmit={handleSave}
+            onClose={() => setModalOpen(false)}
+          />
         </Modal>
       )}
     </div>
   );
-}
-function t(key: string): string {
-  const messages: Record<string, string> = {
-    noNotes: "No notes found.",
-  };
-  return messages[key] || key;
 }

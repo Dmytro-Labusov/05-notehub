@@ -1,4 +1,3 @@
-// src/components/NoteList/NoteList.tsx
 import type { Note } from "../types/note";
 import css from "./NoteList.module.css";
 
@@ -9,6 +8,10 @@ interface NoteListProps {
 }
 
 export default function NoteList({ notes, onDelete, onEdit }: NoteListProps) {
+  if (notes.length === 0) {
+    return <p className={css.empty}>No notes available.</p>;
+  }
+
   return (
     <ul className={css.list}>
       {notes.map((note) => (

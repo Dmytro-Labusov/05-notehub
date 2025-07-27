@@ -29,7 +29,9 @@ export async function fetchNotes(
     perPage,
   };
   if (search) params.search = search;
+
   const resp = await client.get("/notes", { params });
+
   return {
     data: resp.data.notes,
     totalPages: resp.data.totalPages,
@@ -56,6 +58,7 @@ export async function updateNote(input: {
   content: string;
   tag: string;
 }): Promise<Note> {
-  const resp = await client.patch(`/notes/${input.id}`, input);
+  const { id, ...data } = input;
+  const resp = await client.patch(`/notes/${id}`, data);
   return resp.data;
 }
