@@ -1,6 +1,6 @@
 import { Formik, Form, Field, ErrorMessage as FormikError } from "formik";
 import * as yup from "yup";
-import type { Note } from "../types/note";
+import type { Note } from "../../types/note";
 import css from "./NoteForm.module.css";
 
 interface NoteFormProps {
