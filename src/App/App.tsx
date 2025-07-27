@@ -7,11 +7,11 @@ import {
   deleteNote,
 } from "../services/noteService";
 import type { Note } from "../types/note";
-import SearchBox from "../SearchBox/SearchBox";
-import Pagination from "../Pagination/Pagination";
-import NoteList from "../NoteList/NoteList";
-import Modal from "../Modal/Modal";
-import NoteForm from "../NoteForm/NoteForm";
+import SearchBox from "../components/SearchBox/SearchBox";
+import Pagination from "../components/Pagination/Pagination";
+import NoteList from "../components/NoteList/NoteList";
+import Modal from "../components/Modal/Modal";
+import NoteForm from "../components/NoteForm/NoteForm";
 import { Toaster } from "react-hot-toast";
 import useDebounce from "../hooks/useDebounce";
 import css from "./App.module.css";
