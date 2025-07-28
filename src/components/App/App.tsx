@@ -1,11 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import {
-  fetchNotes,
-  createNote,
-  updateNote,
-  deleteNote,
-} from "../../services/noteService";
+import { fetchNotes, createNote, updateNote } from "../../services/noteService";
 import type { Note } from "../../types/note";
 import SearchBox from "../SearchBox/SearchBox";
 import Pagination from "../Pagination/Pagination";
@@ -15,6 +10,8 @@ import NoteForm from "../NoteForm/NoteForm";
 import { Toaster } from "react-hot-toast";
 import useDebounce from "../../hooks/useDebounce";
 import css from "./App.module.css";
+
+const PAGE_SIZE = 12;
 
 export default function App() {
   const qc = useQueryClient();
@@ -39,7 +36,7 @@ export default function App() {
     totalPages: number;
   }>({
     queryKey: ["notes", page, debouncedSearch],
-    queryFn: () => fetchNotes(page, 12, debouncedSearch),
+    queryFn: () => fetchNotes(page, PAGE_SIZE, debouncedSearch),
     staleTime: 5000,
     placeholderData: (prev) => prev,
   });
@@ -49,18 +46,13 @@ export default function App() {
     setPage(1);
   };
 
-  const handleDelete = async (id: string) => {
-    await deleteNote(id);
-    await qc.invalidateQueries({ queryKey: ["notes"] });
-  };
-
   const handleSave = async (values: {
     title: string;
     content: string;
     tag: Note["tag"];
   }) => {
     if (selected) {
-      await updateMutation.mutateAsync({ id: selected.id, ...values });
+      await updateMutation.mutateAsync({ id: String(selected.id), ...values });
     } else {
       await createMutation.mutateAsync(values);
     }
@@ -77,7 +69,6 @@ export default function App() {
             currentPage={page}
             pageCount={data.totalPages}
             onPageChange={(newPage) => {
-              console.log("Pagination clicked:", newPage);
               setPage(newPage);
             }}
           />
@@ -96,10 +87,9 @@ export default function App() {
       {isLoading && <p>Loading...</p>}
       {isError && <p>Error occurred</p>}
 
-      {data && data.data.length > 0 && (
+      {data && (
         <NoteList
           notes={data.data}
-          onDelete={handleDelete}
           onEdit={(note) => {
             setSelected(note);
             setModalOpen(true);

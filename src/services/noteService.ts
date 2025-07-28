@@ -30,7 +30,10 @@ export async function fetchNotes(
   };
   if (search) params.search = search;
 
-  const resp = await client.get("/notes", { params });
+  const resp = await client.get<{ notes: Note[]; totalPages: number }>(
+    "/notes",
+    { params }
+  );
 
   return {
     data: resp.data.notes,
@@ -43,12 +46,12 @@ export async function createNote(input: {
   content: string;
   tag: Note["tag"];
 }): Promise<Note> {
-  const resp = await client.post("/notes", input);
+  const resp = await client.post<Note>("/notes", input);
   return resp.data;
 }
 
-export async function deleteNote(id: string): Promise<{ id: string }> {
-  const resp = await client.delete(`/notes/${id}`);
+export async function deleteNote(id: number): Promise<Note> {
+  const resp = await client.delete<Note>(`/notes/${id}`);
   return resp.data;
 }
 
@@ -56,9 +59,9 @@ export async function updateNote(input: {
   id: string;
   title: string;
   content: string;
-  tag: string;
+  tag: Note["tag"];
 }): Promise<Note> {
   const { id, ...data } = input;
-  const resp = await client.patch(`/notes/${id}`, data);
+  const resp = await client.patch<Note>(`/notes/${id}`, data);
   return resp.data;
 }
