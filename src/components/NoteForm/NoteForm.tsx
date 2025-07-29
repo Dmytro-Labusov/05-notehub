@@ -2,17 +2,18 @@ import { Formik, Form, Field, ErrorMessage as FormikError } from "formik";
 import * as yup from "yup";
 import type { Note } from "../../types/note";
 import css from "./NoteForm.module.css";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createNote, updateNote } from "../../services/noteService";
 
-interface NoteFormProps {
+export interface NoteFormProps {
   initial?: Note | null;
-  onSubmit: (values: {
+  onClose: () => void;
+  onSave: (values: {
     title: string;
     content: string;
     tag: Note["tag"];
-  }) => void | Promise<void>;
-  onClose: () => void;
+  }) => Promise<void>;
 }
-
 const validationSchema = yup.object({
   title: yup
     .string()
@@ -26,11 +27,27 @@ const validationSchema = yup.object({
     .required("Tag is required"),
 });
 
-export default function NoteForm({
-  initial,
-  onSubmit,
-  onClose,
-}: NoteFormProps) {
+export default function NoteForm({ initial, onClose }: NoteFormProps) {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (values: {
+      title: string;
+      content: string;
+      tag: Note["tag"];
+    }) => {
+      if (initial) {
+        return updateNote({ id: String(initial.id), ...values });
+      } else {
+        return createNote(values);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      onClose();
+    },
+  });
+
   const initialValues = initial
     ? {
         title: initial.title,
@@ -48,15 +65,10 @@ export default function NoteForm({
       initialValues={initialValues}
       validationSchema={validationSchema}
       enableReinitialize
-      onSubmit={async (values, { setSubmitting }) => {
-        try {
-          await onSubmit(values);
-          onClose(); // Закрываем только после успешного сабмита
-        } catch (error) {
-          console.error("Error submitting form:", error);
-        } finally {
-          setSubmitting(false);
-        }
+      onSubmit={(values, { setSubmitting }) => {
+        mutation.mutate(values, {
+          onSettled: () => setSubmitting(false),
+        });
       }}
     >
       {({ isSubmitting }) => (

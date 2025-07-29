@@ -101,8 +101,8 @@ export default function App() {
         <Modal onClose={() => setModalOpen(false)}>
           <NoteForm
             initial={selected}
-            onSubmit={handleSave}
             onClose={() => setModalOpen(false)}
+            onSave={handleSave}
           />
         </Modal>
       )}
