@@ -45,3 +45,19 @@
   color: #fff !important;
   font-weight: 500;
 }
+
+/* Specific styles for individual pagination elements */
+.pageItem,
+.navItem {
+  /* Inherits styles from .pagination li */
+}
+
+.pageLink {
+  /* Inherits styles from .pagination li a */
+}
+
+/* Navigation items (prev/next) get slightly bolder arrows */
+.navItem a {
+  font-size: 16px;
+  font-weight: bold;
+}

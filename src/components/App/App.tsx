@@ -64,15 +64,6 @@ export default function App() {
       <Toaster position="top-right" />
       <header className={css.toolbar}>
         <SearchBox onSearch={handleSearch} />
-        {data && data.totalPages > 1 && (
-          <Pagination
-            currentPage={page}
-            pageCount={data.totalPages}
-            onPageChange={(newPage) => {
-              setPage(newPage);
-            }}
-          />
-        )}
         <button
           className={css.createBtn}
           onClick={() => {
@@ -88,13 +79,24 @@ export default function App() {
       {isError && <p>Error occurred</p>}
 
       {data && (
-        <NoteList
-          notes={data.data}
-          onEdit={(note) => {
-            setSelected(note);
-            setModalOpen(true);
-          }}
-        />
+        <>
+          <NoteList
+            notes={data.data}
+            onEdit={(note) => {
+              setSelected(note);
+              setModalOpen(true);
+            }}
+          />
+          {data.totalPages > 1 && (
+            <Pagination
+              currentPage={page}
+              pageCount={data.totalPages}
+              onPageChange={(newPage) => {
+                setPage(newPage);
+              }}
+            />
+          )}
+        </>
       )}
 
       {isModalOpen && (
