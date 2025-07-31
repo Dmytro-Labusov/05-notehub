@@ -59,10 +59,6 @@ export default function App() {
     setModalOpen(false);
   };
 
-  const handlePageChange = (newPage: number) => {
-  setPage(newPage);
-}
-
   return (
     <div className={css.app}>
       <Toaster position="top-right" />
@@ -72,7 +68,8 @@ export default function App() {
           <Pagination
             currentPage={page}
             pageCount={data.totalPages}
-            onPageChange={handlePageChange};
+            onPageChange={(newPage) => {
+              setPage(newPage);
             }}
           />
         )}
