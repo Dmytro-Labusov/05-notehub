@@ -42,10 +42,11 @@ export default function App() {
   });
 
   const handleSearch = (term: string) => {
+    if (search !== term) {
+      setPage(1);
+    }
     setSearch(term);
-    setPage(1);
   };
-
   const handleSave = async (values: {
     title: string;
     content: string;
