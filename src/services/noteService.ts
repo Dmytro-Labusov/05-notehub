@@ -2,6 +2,7 @@ import axios from "axios";
 import type { Note } from "../types/note";
 
 const BASE = "https://notehub-public.goit.study/api";
+
 const client = axios.create({
   baseURL: BASE,
 });
@@ -50,7 +51,7 @@ export async function createNote(input: {
   return resp.data;
 }
 
-export async function deleteNote(id: number): Promise<Note> {
+export async function deleteNote(id: string): Promise<Note> {
   const resp = await client.delete<Note>(`/notes/${id}`);
   return resp.data;
 }
